@@ -1,0 +1,77 @@
+source $VIMRUNTIME/vimrc_example.vim
+
+set diffexpr=MyDiff()
+function MyDiff()
+  let opt = '-a --binary '
+  if &diffopt =~ 'icase' | let opt = opt . '-i ' | endif
+  if &diffopt =~ 'iwhite' | let opt = opt . '-b ' | endif
+  let arg1 = v:fname_in
+  if arg1 =~ ' ' | let arg1 = '"' . arg1 . '"' | endif
+  let arg1 = substitute(arg1, '!', '\!', 'g')
+  let arg2 = v:fname_new
+  if arg2 =~ ' ' | let arg2 = '"' . arg2 . '"' | endif
+  let arg2 = substitute(arg2, '!', '\!', 'g')
+  let arg3 = v:fname_out
+  if arg3 =~ ' ' | let arg3 = '"' . arg3 . '"' | endif
+  let arg3 = substitute(arg3, '!', '\!', 'g')
+  if $VIMRUNTIME =~ ' '
+    if &sh =~ '\<cmd'
+      if empty(&shellxquote)
+        let l:shxq_sav = ''
+        set shellxquote&
+      endif
+      let cmd = '"' . $VIMRUNTIME . '\diff"'
+    else
+      let cmd = substitute($VIMRUNTIME, ' ', '" ', '') . '\diff"'
+    endif
+  else
+    let cmd = $VIMRUNTIME . '\diff'
+  endif
+  let cmd = substitute(cmd, '!', '\!', 'g')
+  silent execute '!' . cmd . ' ' . opt . arg1 . ' ' . arg2 . ' > ' . arg3
+  if exists('l:shxq_sav')
+    let &shellxquote=l:shxq_sav
+  endif
+endfunction
+
+filetype plugin indent on "Включает определение типа файла, загрузку...
+"... соответствующих ему плагинов и файлов отступов
+set encoding=utf-8 "Ставит кодировку UTF-8
+set nocompatible "Отключает обратную совместимость с Vi
+syntax enable "Включает подсветку синтаксиса
+set langmenu=en_US
+let $LANG = 'en_US'
+source $VIMRUNTIME/delmenu.vim
+source $VIMRUNTIME/menu.vim
+:set guifont=Consolas:h11
+
+if empty(glob('~/vimfiles/autoload/plug.vim')) "Если vim-plug не стоит
+  silent !curl -fLo ~/vimfiles/autoload/plug.vim --create-dirs "Создать директорию
+    \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim 
+  "И скачать его оттуда
+  "А после прогнать команду PlugInstall, о которой мы сейчас поговорим
+  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+endif
+
+call plug#begin('~/.vim/bundle') "Начать искать плагины в этой директории
+"Тут будут описаны наши плагины
+"Plug 'ErichDonGubler/vim-sublime-monokai'
+"Plug 'vim-airline/vim-airline'
+Plug 'sheerun/vim-polyglot'
+"Plug 'lifepillar/vim-solarized8'
+"Plug 'phanviet/vim-monokai-pro'
+"Plug 'lifepillar/vim-solarized8'
+Plug 'dracula/vim', { 'as': 'dracula' }
+call plug#end() "Перестать это делать
+
+
+set termguicolors
+colorscheme dracula
+
+
+"Airline
+"let g:airline_powerline_fonts = 1 "Включить поддержку Powerline шрифтов
+let g:airline#extensions#keymap#enabled = 0 "Не показывать текущий маппинг
+"let g:airline_section_z = "\ue0a1:%l/%L Col:%c" "Кастомная графа положения курсора
+let g:Powerline_symbols='unicode' "Поддержка unicode
+"let g:airline#extensions#xkblayout#enabled = 0 "Про это позже расскажу
